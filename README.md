@@ -7,13 +7,13 @@ A font that maps every character to one glyph.
 To install run the following command:
 
 ```sh
-npm install -D fallback-font
+npm install fallback-font
 ```
 
 or with yarn run:
 
 ```sh
-yarn add -D fallback-font
+yarn add fallback-font
 ```
 
 Then import one of the css files inside your app. For example: `import "fallback-font/fallback-outline.css";`
