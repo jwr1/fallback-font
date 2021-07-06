@@ -1,0 +1,37 @@
+{
+  "name": "fallback-font",
+  "version": "1.0.0",
+  "description": "A font that maps every character to one glyph.",
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "eslint": "eslint --fix .",
+    "prettier": "prettier -w ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwr12135/fallback-font.git"
+  },
+  "keywords": [
+    "font"
+  ],
+  "author": "jwr12135",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jwr12135/fallback-font/issues"
+  },
+  "homepage": "https://github.com/jwr12135/fallback-font#readme",
+  "devDependencies": {
+    "@airbnb-config/eslint-base": "^1.0.1",
+    "@airbnb-config/prettier": "^1.0.2",
+    "eslint": "^7.30.0",
+    "prettier": "^2.3.2"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/@airbnb-config/eslint-base",
+    "ignorePatterns": "woff2",
+    "rules": {
+      "no-bitwise": "off"
+    }
+  },
+  "prettier": "@airbnb-config/prettier"
+}
