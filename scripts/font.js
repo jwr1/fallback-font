@@ -25,7 +25,9 @@ function inRange(v, min, max) {
  */
 function checkRange(name, type, v, min, max) {
   if (!inRange(v, min, max))
-    throw Error(`${type} "${name}" has value ${v} which is not in range of ${min} to ${max}`);
+    throw Error(
+      `${type} "${name}" has value ${v} which is not in range of ${min} to ${max}`,
+    );
   return v;
 }
 
@@ -53,7 +55,9 @@ function Table(name, value) {
 Object.defineProperties(Table.prototype, {
   size: {
     get() {
-      return this.value.length === 0 ? 0 : this.value.map((v) => v.size).reduce((a, b) => a + b);
+      return this.value.length === 0
+        ? 0
+        : this.value.map((v) => v.size).reduce((a, b) => a + b);
     },
   },
   encode: {
@@ -258,7 +262,13 @@ Object.defineProperties(LongDateTime.prototype, {
   size: { value: 8 },
   encode: {
     value() {
-      return [0, 0, 0, 0, ...intToBytes(Math.round(this.value.getTime() / 1000) + 0x7c25b080, 4)];
+      return [
+        0,
+        0,
+        0,
+        0,
+        ...intToBytes(Math.round(this.value.getTime() / 1000) + 0x7c25b080, 4),
+      ];
     },
   },
 });
@@ -353,7 +363,9 @@ Object.defineProperties(CffIndex.prototype, {
           }
           if (offSize) break;
         }
-        const offsetType = { 1: uint8, 2: uint16, 3: uint24, 4: uint32 }[offSize];
+        const offsetType = { 1: uint8, 2: uint16, 3: uint24, 4: uint32 }[
+          offSize
+        ];
         return Table(this.name, [
           uint32('count', this.value.length),
           uint8('offSize', offSize),
@@ -420,7 +432,14 @@ Object.defineProperties(CffNum.prototype, {
  * @param {glyphBounds} props.glyphBounds
  * @returns {Table}
  */
-const genHead = ({ majorVersion, minorVersion, checksumAdjustment, flags, date, glyphBounds }) =>
+const genHead = ({
+  majorVersion,
+  minorVersion,
+  checksumAdjustment,
+  flags,
+  date,
+  glyphBounds,
+}) =>
   Table('head', [
     uint16('majorVersion', 1),
     uint16('minorVersion', 0),
@@ -476,7 +495,8 @@ const genHhea = ({ glyphBounds, width }) =>
  * https://docs.microsoft.com/en-us/typography/opentype/spec/maxp
  * @returns {Table}
  */
-const genMaxp = () => Table('maxp', [uint32('version', 0x00005000), uint16('numGlyphs', 2)]);
+const genMaxp = () =>
+  Table('maxp', [uint32('version', 0x00005000), uint16('numGlyphs', 2)]);
 
 /**
  * https://docs.microsoft.com/en-us/typography/opentype/spec/os2
@@ -546,7 +566,7 @@ const genOS2 = ({ width, glyphBounds }) =>
  */
 const genName = ({ name, version }) => {
   const nameData = Table('data', [
-    String16('copyright', 'github.com/jwr12135/fallback-font'),
+    String16('copyright', 'github.com/jwr1/fallback-font'),
     String16('fontFamily', name),
     String16('fontSubfamily', 'Regular'),
     String16('uniqueID', `${name.replace(/ /g, '')}-${version}`),
@@ -730,13 +750,23 @@ const genCff2 = (path) =>
     ]),
     CffIndex('globalSubrIndex', []),
     CffIndex('charStringsIndex', [
-      Table('glyph0', [Table('callsubr', [CffNum('offset', -107), uint8('op', 10)])]),
-      Table('glyph1', [Table('callsubr', [CffNum('offset', -107), uint8('op', 10)])]),
+      Table('glyph0', [
+        Table('callsubr', [CffNum('offset', -107), uint8('op', 10)]),
+      ]),
+      Table('glyph1', [
+        Table('callsubr', [CffNum('offset', -107), uint8('op', 10)]),
+      ]),
     ]),
     CffIndex('fontDictIndex', [
-      Table('Private', [CffNum('size', 2), CffNum('offset', 36), uint8('op', 18)]),
+      Table('Private', [
+        CffNum('size', 2),
+        CffNum('offset', 36),
+        uint8('op', 18),
+      ]),
     ]),
-    Table('privateDict0', [Table('Subrs', [CffNum('num', 2), uint8('op', 19)])]),
+    Table('privateDict0', [
+      Table('Subrs', [CffNum('num', 2), uint8('op', 19)]),
+    ]),
     CffIndex('localSubrIndex', [Table('localSubrIndex0', path.cffPath)]),
   ]);
 
@@ -749,8 +779,14 @@ const genCff2 = (path) =>
  */
 const genHmtx = ({ width, glyphBounds }) =>
   Table('hmtx', [
-    Table('glyph0', [uint16('advanceWidth', width), int16('lsb', glyphBounds.xMin)]),
-    Table('glyph1', [uint16('advanceWidth', width), int16('lsb', glyphBounds.xMin)]),
+    Table('glyph0', [
+      uint16('advanceWidth', width),
+      int16('lsb', glyphBounds.xMin),
+    ]),
+    Table('glyph1', [
+      uint16('advanceWidth', width),
+      int16('lsb', glyphBounds.xMin),
+    ]),
   ]);
 
 /**
@@ -763,7 +799,11 @@ const calcChecksum = (data) => {
 
   let sum = 0;
   for (let i = 0; i < bytes.length; i += 4) {
-    const val = (bytes[i] << 24) + (bytes[i + 1] << 16) + (bytes[i + 2] << 8) + bytes[i + 3];
+    const val =
+      (bytes[i] << 24) +
+      (bytes[i + 1] << 16) +
+      (bytes[i + 2] << 8) +
+      bytes[i + 3];
     sum += val < 0 ? val + 0x100000000 : val;
   }
 
@@ -782,7 +822,9 @@ module.exports = {
    */
   genFont({ name, version, path, width, date = new Date() }) {
     const fileName = name.toLowerCase().replace(/ /g, '-');
-    const [majorVersion, minorVersion] = version.split('.').map((v) => parseInt(v, 10));
+    const [majorVersion, minorVersion] = version
+      .split('.')
+      .map((v) => parseInt(v, 10));
     const glyphBounds = {
       xMin: path.xMin,
       yMin: path.yMin,
@@ -839,7 +881,9 @@ module.exports = {
     ]);
     const newChecksumAdjustment = 0xb1b0afba - calcChecksum(otfFile.encode());
     checksumAdjustment.value =
-      newChecksumAdjustment < 0 ? newChecksumAdjustment + 0x100000000 : newChecksumAdjustment;
+      newChecksumAdjustment < 0
+        ? newChecksumAdjustment + 0x100000000
+        : newChecksumAdjustment;
     writeFileSync(`./dist/${fileName}.otf`, new Uint8Array(otfFile.encode()));
 
     spawn('./woff2/woff2_compress', [`./dist/${fileName}.otf`]);

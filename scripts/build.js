@@ -1,8 +1,9 @@
 const { exec } = require('child_process');
 const { mkdirSync, rmSync, existsSync } = require('fs');
-const { Path, genFont } = require('./gen-font');
+const { Path, genFont } = require('./font');
 
 function generateFonts() {
+  console.log('Building fonts...');
   genFont({
     name: 'Fallback Outline',
     version: '1.0',
@@ -49,5 +50,6 @@ mkdirSync('./dist');
 if (existsSync('./woff2/woff2_compress')) {
   generateFonts();
 } else {
+  console.log('Compiling woff2...');
   exec('cd woff2 && make clean all', generateFonts);
 }
